@@ -1,122 +1,80 @@
-# tiny11builder
-*Scripts to build a trimmed-down Windows 11 image - now in **PowerShell**!*
-
-## Introduction :
-Tiny11 builder, now completely overhauled. <br> After more than a year (for which I am so sorry) of no updates, tiny11 builder is now a much more complete and flexible solution - one script fits all. Also, it is a steppingstone for an even more fleshed-out solution.
-
-You can now use it on ANY Windows 11 release (not just a specific build), as well as ANY language or architecture.
-This is made possible thanks to the much-improved scripting capabilities of PowerShell, compared to the older Batch release.
-
-This is a script created to automate the build of a streamlined Windows 11 image, similar to tiny10.
-The script has also been updated to use DISM's recovery compression, resulting in a much smaller final ISO size, and no utilities from external sources. The only other executable included is **oscdimg.exe**, which is provided in the Windows ADK and it is used to create bootable ISO images. 
-Also included is an unattended answer file, which is used to bypass the Microsoft Account on OOBE and to deploy the image with the `/compact` flag.
-It's open-source, **so feel free to add or remove anything you want!** Feedback is also much appreciated.
-
-Also, for the very first time, **introducing tiny11 core builder**! A more powerful script, designed for a quick and dirty development testbed. Just the bare minimum, none of the fluff. 
-This script generates a significantly reduced Windows 11 image. However, **it's not suitable for regular use due to its lack of serviceability - you can't add languages, updates, or features post-creation**. tiny11 Core is not a full Windows 11 substitute but a rapid testing or development tool, potentially useful for VM environments.
+# core11
+*Scripts to Build a Trimmed-Down Windows 11 Image Using PowerShell*
 
 ---
 
-## ⚠️ Script versions:
-- **tiny11maker.ps1** : The regular script, which removes a lot of bloat but keeps the system serviceable. You can add languages, updates, and features post-creation. This is the recommended script for regular use.
-- ⚠️ **tiny11coremaker.ps1** : The core script, which removes even more bloat but also removes the ability to service the image. You cannot add languages, updates, or features post-creation. This is recommended for quick testing or development use.
+## Overview
 
-## Instructions:
-1. Download Windows 11 from the [Microsoft website](https://www.microsoft.com/software-download/windows11) or [Rufus](https://github.com/pbatard/rufus)
-2. Mount the downloaded ISO image using Windows Explorer.
-3. Open **PowerShell 5.1** as Administrator. 
-5. Change the script execution policy :
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process
-```
-> Using `-Scope Process` you keep your original policy intact as this change only lasts for the current PowerShell session. 
+Welcome to the overhauled version of **core11 builder**. Transitioning from the legacy Batch implementation to a native PowerShell environment has allowed for a much more flexible, complete, and scalable solution. This architecture provides a single, unified framework capable of handling varying development demands.
 
-6. Start the script :
-```powershell
-C:/path/to/your/tiny11/script.ps1 -ISO <letter> -SCRATCH <letter>
-``` 
-> You can see of the script by running the `get-help` command.
+Thanks to the enhanced scripting and automation capabilities of PowerShell, this tool now supports any Windows 11 release, language, or system architecture (including x64 and ARM64).
 
-6. Select the drive letter where the image is mounted (only the letter, no colon (:))
-7. Select the SKU that you want the image to be based.
-8. Sit back and relax :)
-9. When the image is completed, you will see it in the folder where the script was extracted, with the name tiny11.iso
+### Features
+* **Automated Optimization:** Automatically strips heavy components and background telemetry to create a streamlined Windows 11 image, inspired by lightweight operating system concepts.
+* **Native DISM Integration:** Leverages Deployment Image Servicing and Management (DISM) native recovery compression (`/Compact`) to reduce the final ISO size without requiring unverified external third-party utilities.
+* **Minimalist Executable Footprint:** The only bundled executable is `oscdimg.exe` (sourced directly from the official Windows Assessment and Deployment Kit), which is strictly utilized to generate bootable ISO images.
+* **Automated Out-of-Box Experience (OOBE):** Includes a pre-configured unattended answer file (`autounattend.xml`) designed to bypass Microsoft Account requirements during initial setup and deploy the operating system natively with the compact flag.
+
+### Credits
+This project is an evolution of the core imaging mechanics popularized by **NTDEV**. It is built upon the structural foundation and optimization logic originally introduced in the open-source **tiny11builder** project. 
+
+* **Original Creator:** [NTDEV](https://github.com/ntdevlabs)
+* **Upstream Base Code:** [tiny11builder](https://github.com/ntdevlabs/tiny11builder)
 
 ---
 
-## What is removed:
-<table>
-  <tbody>
-    <tr>
-      <th>Tiny11maker</th>
-      <th>Tiny11coremaker</th>
-    </tr>
-    <tr>
-      <td>
-        <ul>
-          <li>Clipchamp</li>
-          <li>News</li>
-          <li>Weather</li>
-          <li>Xbox</li>
-          <li>GetHelp</li>
-          <li>GetStarted</li>
-          <li>Office Hub</li>
-          <li>Solitaire</li>
-          <li>PeopleApp</li>
-          <li>PowerAutomate</li>
-          <li>ToDo</li>
-          <li>Alarms</li>
-          <li>Mail and Calendar</li>
-          <li>Feedback Hub</li>
-          <li>Maps</li>
-          <li>Sound Recorder</li>
-          <li>Your Phone</li>
-          <li>Media Player</li>
-          <li>QuickAssist</li>
-          <li>Internet Explorer</li>
-          <li>Tablet PC Math</li>
-          <li>Edge</li>
-          <li>OneDrive</li>
-        </ul>
-      </td>
-      <td>
-        <ul>
-          <li>all from regular tiny +</li>
-          <li>Windows Component Store (WinSxS)</li>
-          <li>Windows Defender (only disabled, can be enabled back if needed)</li>
-          <li>Windows Update (wouldn't work without WinSxS, enabling it would put the system in a state of failure)</li>
-          <li>WinRE</li>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
+## Script Variants
 
-Keep in mind that **you cannot add back features in tiny11 core**! <br>
-You will be asked during image creation if you want to enable .net 3.5 support!
+The project is split into two distinct operational scripts depending on your targets for stability, deployment longevity, and post-installation support.
+
+* **`core11basic.ps1` (Standard Edition):** The recommended baseline script for general deployment. It strips heavy application bloat and background telemetry while preserving the integrity of the Windows Component Store. The system remains fully serviceable, allowing the installation of future cumulative updates, language packs, and optional features.
+* **`core11minimal.ps1` (Core Edition):** An aggressive reduction script tailored specifically for rapid testing, specialized virtualized sandboxes, or temporary development environments. It maximizes resource reduction by permanently stripping out servicing frameworks.
 
 ---
 
-## Known issues:
-- Although Edge is removed, there are some remnants in the Settings, but the app in itself is deleted. 
-- You might have to update Winget before being able to install any apps, using Microsoft Store.
-- Outlook and Dev Home might reappear after some time. This is an ongoing battle, though the latest script update tries to prevent this more aggressively.
-- If you are using this script on arm64, you might see a glimpse of an error while running the script. This is caused by the fact that the arm64 image doesn't have OneDriveSetup.exe included in the System32 folder.
+## Instructions
+
+1.  Download a standard Windows 11 ISO from the official Microsoft Software Download page or via verified utilities such as Rufus.
+2.  Mount the downloaded ISO image natively within Windows Explorer.
+3.  Launch an elevated **PowerShell 5.1** console (Run as Administrator).
+4.  Temporarily modify the script execution policy for the current process scope to allow execution:
+    ```powershell
+    Set-ExecutionPolicy Bypass -Scope Process
+    ```
+    *Note: Utilizing the `-Scope Process` modifier ensures that your system's global execution policy remains unchanged and secure once the current PowerShell session is terminated.*
+5.  Execute the build script passing the required parameters for your environment:
+    ```powershell
+    .\core11maker.ps1 -ISO <DriveLetter> -SCRATCH <DriveLetter>
+    ```
+    *Note: Advanced parameter options and internal syntax details can be viewed at any time by executing `Get-Help .\core11maker.ps1`.*
+6.  When prompted, provide the exact drive letter where the source Windows 11 ISO is currently mounted (enter the letter only, omitting colons or backslashes).
+7.  Select the desired Stock Keeping Unit (SKU) / Windows Edition that you wish to base your lightweight image on.
+8.  Allow the automation process to finalize mounting, modification, provisioning removal, and image compression.
+9.  Upon successful completion, the optimized bootable image will be generated in the root script directory under the filename `core11.iso`.
 
 ---
 
-## Features to be implemented:
-- ~~disabling telemetry~~ (Implemented in the 04-29-24 release!)
-- ~~more ad suppression~~ (Partially implemented in the 09-06-25 release!)
-- improved language and arch detection
-- more flexibility in what to keep and what to delete
-- maybe a GUI???
+## Features
 
-And that's pretty much it for now!
-## ❤️ Support the Project
+| Standard Modifications (`core11maker`) | Core Aggressive Modifications (`core11coremaker`) |
+| :--- | :--- |
+| Clipchamp, News, Weather, Xbox | **Includes all Standard removals, plus the following:** |
+| GetHelp, GetStarted, Feedback Hub | Complete Windows Component Store (`WinSxS`) |
+| Office Hub, Solitaire, ToDo, Maps | Windows Defender *(Disabled by default; can be re-enabled)* |
+| Mail & Calendar, PeopleApp, Alarms | Windows Update Service *(Disabled due to removal of WinSxS)* |
+| Sound Recorder, Your Phone, Media Player | Windows Recovery Environment (`WinRE`) |
+| PowerAutomate, QuickAssist, Internet Explorer | |
+| Microsoft Edge, OneDrive, Tablet PC Math | |
 
-If this project has helped you, please consider showing your support! A small donation helps me dedicate more time to projects like this.
-Thank you!
+*Important Servicing Note:* Systems deployed using the Core edition (`core11coremaker`) cannot re-install system features or language packs post-installation due to the absence of the Component Store. However, during the compilation process, the script will interactively prompt you to choose whether to bake in **.NET Framework 3.5 support** before sealing the runtime environment.
 
-**[Patreon](http://patreon.com/ntdev) | [PayPal](http://paypal.me/ntdev2) | [Ko-fi](http://ko-fi.com/ntdev)**
-Thanks for trying it and let me know how you like it!
+---
+
+## Issues
+
+* **Settings App Remnants:** While Microsoft Edge is completely deleted from the file system, dead pointers or broken shortcuts linking to it may occasionally show up inside specific menus of the native Settings application.
+* **Winget Initialization Requirements:** Due to the removal of pre-provisioned application data, you may need to open the Microsoft Store and check for app updates manually before the `winget` command-line utility functions perfectly.
+* **Background Provisioning Hurdles:** System packages like New Outlook and Dev Home frequently attempt to re-provision themselves via automated background store tasks. The script implements aggressive blocks against this behavior, but minor edge cases remain an ongoing target for optimization.
+* **ARM64 Compilation Warnings:** When running the script against an ARM64 source image, a transient non-terminating error message may briefly flash in the console. This occurs natively because ARM64 Windows installation media does not bundle `OneDriveSetup.exe` inside the `System32` directory.
+
+---
